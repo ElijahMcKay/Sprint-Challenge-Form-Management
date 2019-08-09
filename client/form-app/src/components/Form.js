@@ -30,19 +30,46 @@ function UserForm({ values, errors, touched, isSubmitting }){
 const FormikUserForm = withFormik({
     mapPropsToValues({ username, password }) {
         return {
-            name: username || '',
+            username: username || '',
             password: password || '',
         }
     },
 
     validationSchema: Yup.object().shape({
-        name: Yup.string().min(5, "Username must be longer than 5 characters.").required("Name is required"),
-        email: Yup.string().email("Email is not valid").required("Email is required"),
-        password: Yup.string().min(6, "Password must be 6 characters or longer").required("Password is required"),
-        tos: Yup.bool()
-        .oneOf([true], 'You must accept the terms')
-        .required('You have to agree with our terms')
+        username: Yup.string().min(5, "Username must be longer than 5 characters.").required("Username is required"),
+        password: Yup.string().min(6, "Password must be 6 characters or longer").required("Password is required")
     }),
+
+    handleSubmit(values, { resetForm, setErrors, setSubmitting, setStatus }) {
+        // console.log(values); 
+        //HTTP REQUEST
+
+        if (values.email === "alreadytaken@atb.dev") {
+            setErrors({ email: "That email is already taken" }); 
+        } else {
+            axios  
+                .post("http://localhost:5000/api/register", values)
+                .then(res => {
+                    console.log(res);
+                    setSubmitting(false); 
+                    setStatus(res.data) 
+                    resetForm();  
+                })
+                .catch(err => {
+                    console.log(err); 
+                    setSubmitting(false); 
+                }); 
+
+            axios
+                .get('http://localhost:5000/api/restricted/data') 
+                .then(res => {
+                    console.log(res); 
+                    setStatus(res.data); 
+                })
+            }
+        }
+    })(UserForm); 
+
 
 
 export default FormikUserForm; 
