@@ -1,10 +1,9 @@
 import React from 'react';
 import Recipe from "./Recipe"; 
 import { render, fireEvent } from "@testing-library/react"; 
-import '@testing-library/react/cleanup-after-each'; 
-import { isMainThread } from 'worker_threads';
+import '@testing-library/react/cleanup-after-each';
 
-describe('<Recipes />', () => {
+describe('<Recipe />', () => {
     it('renders without crashing', () => {
         render(<Recipe />); 
     })
