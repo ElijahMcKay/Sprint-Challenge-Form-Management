@@ -1,29 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { withFormik, Form, Field } from "formik"; 
 import * as Yup from "yup"; 
-import axios from "axios"; 
+import axios from "axios";
+import Recipe from "./Recipe"
 
-function UserForm({ values, errors, touched, isSubmitting }){
+function UserForm({ values, errors, touched, isSubmitting, status }){
+    
+    const [ users, setUsers ] = useState([])
+    const [ recipe, setRecipe ] = useState([])
+
+    useEffect(() => {
+        if(status) {
+            setUsers([...users, status]); 
+            console.log(status); 
+        }
+    }, [status]);
+
+    useEffect(() => {
+        axios
+        .get('http://localhost:5000/api/restricted/data') 
+        .then(res => { 
+            setRecipe(res.data); 
+        })
+    }, [])
+
 
     return (
-        <Form>
-            <div>
-                {touched.username && errors.username && <p>{errors.username}</p>}
-                <Field 
-                name="username"
-                placeholder="Username"
-                />
-            </div>
-            <div>
-                {touched.password && errors.password && <p>{errors.password}</p>}
-                <Field
-                name="password"
-                type="password"
-                placeholder="Password"
-                />
-            </div>
-            <button disabled={isSubmitting}>Submit!</button>
-        </Form>
+        <div>
+            <Form>
+                <div>
+                    {touched.username && errors.username && <p>{errors.username}</p>}
+                    <Field 
+                    name="username"
+                    placeholder="Username"
+                    />
+                </div>
+                <div>
+                    {touched.password && errors.password && <p>{errors.password}</p>}
+                    <Field
+                    name="password"
+                    type="password"
+                    placeholder="Password"
+                    />
+                </div>
+                <button disabled={isSubmitting}>Submit!</button>
+            </Form>
+            <Recipe recipe={recipe} />
+        </div>
     )
 }
 
@@ -50,22 +73,14 @@ const FormikUserForm = withFormik({
             axios  
                 .post("http://localhost:5000/api/register", values)
                 .then(res => {
-                    console.log(res);
-                    setSubmitting(false); 
-                    setStatus(res.data) 
+                    setSubmitting(false);
+                    setStatus(res.data);  
                     resetForm();  
                 })
                 .catch(err => {
                     console.log(err); 
                     setSubmitting(false); 
                 }); 
-
-            axios
-                .get('http://localhost:5000/api/restricted/data') 
-                .then(res => {
-                    console.log(res); 
-                    setStatus(res.data); 
-                })
             }
         }
     })(UserForm); 
